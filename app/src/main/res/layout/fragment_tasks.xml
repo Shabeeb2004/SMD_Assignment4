@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:paddingTop="14dp">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:layout_marginHorizontal="16dp" android:background="@drawable/bg_input"
+        android:paddingHorizontal="12dp">
+        <ImageView android:layout_width="20dp" android:layout_height="20dp"
+            android:src="@drawable/ic_search" android:contentDescription="Search"/>
+        <EditText android:id="@+id/etTaskSearch"
+            android:layout_width="0dp" android:layout_height="46dp" android:layout_weight="1"
+            android:layout_marginStart="8dp" android:background="@null"
+            android:hint="Search tasks in project..." android:inputType="text"
+            android:singleLine="true" android:textSize="14sp"/>
+    </LinearLayout>
+
+    <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:scrollbars="none" android:layout_marginTop="10dp">
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:paddingHorizontal="16dp">
+            <Spinner android:id="@+id/spStatus" android:layout_width="125dp" android:layout_height="38dp"
+                android:background="@drawable/bg_spinner" android:paddingEnd="26dp"/>
+            <Spinner android:id="@+id/spPriority" android:layout_width="135dp" android:layout_height="38dp"
+                android:layout_marginStart="8dp" android:background="@drawable/bg_spinner"
+                android:paddingEnd="26dp"/>
+            <Spinner android:id="@+id/spDate" android:layout_width="120dp" android:layout_height="38dp"
+                android:layout_marginStart="8dp" android:background="@drawable/bg_spinner"
+                android:paddingEnd="26dp"/>
+            <Spinner android:id="@+id/spSort" android:layout_width="190dp" android:layout_height="38dp"
+                android:layout_marginStart="8dp" android:background="@drawable/bg_spinner"
+                android:paddingEnd="26dp"/>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:layout_marginHorizontal="16dp" android:layout_marginVertical="10dp">
+        <TextView android:id="@+id/tvShowing"
+            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:textSize="12sp" android:textColor="#6B7280"/>
+        <TextView android:id="@+id/btnResetFilters"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:padding="4dp" android:text="Reset filters" android:textSize="12sp"
+            android:textStyle="bold" android:textColor="#2E9BF5"/>
+    </LinearLayout>
+
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <ListView android:id="@+id/lvTasks"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:paddingHorizontal="16dp" android:clipToPadding="false"
+            android:divider="@android:color/transparent" android:dividerHeight="8dp"
+            android:listSelector="@android:color/transparent"/>
+        <LinearLayout android:id="@+id/layoutEmpty"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:orientation="vertical" android:gravity="center" android:visibility="gone">
+            <TextView android:id="@+id/tvEmptyTitle"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="16sp" android:textColor="#111827"/>
+            <Button android:id="@+id/btnEmptyAction"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </FrameLayout>
+
+    <androidx.appcompat.widget.AppCompatButton android:id="@+id/btnAddTask"
+        android:layout_width="match_parent" android:layout_height="52dp"
+        android:layout_margin="16dp" android:background="@drawable/bg_btn_primary"
+        android:text="+  Add Task" android:textAllCaps="false" android:textSize="15sp"
+        android:textStyle="bold" android:textColor="#FFFFFF"
+        android:contentDescription="Add task"/>
+</LinearLayout>

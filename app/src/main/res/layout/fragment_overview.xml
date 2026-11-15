@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="16dp">
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:background="@drawable/bg_card" android:padding="16dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="BRIEF &amp; SCOPE"
+                        android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.08"
+                        android:textColor="#6B7280"/>
+                    <TextView android:id="@+id/btnEditProject"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Edit Project ✎" android:textSize="12sp" android:textStyle="bold"
+                        android:textColor="#2E9BF5" android:padding="4dp"/>
+                </LinearLayout>
+                <TextView android:id="@+id/tvDescription"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" android:textSize="14sp" android:textColor="#374151"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:background="@drawable/bg_card"
+                android:padding="16dp" android:layout_marginTop="12dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="PROJECT PROGRESS"
+                        android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.08"
+                        android:textColor="#111827"/>
+                    <TextView android:id="@+id/tvPercent"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textSize="13sp" android:textStyle="bold" android:textColor="#2E9BF5"/>
+                </LinearLayout>
+                <TextView android:id="@+id/tvCompleted"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:textSize="13sp" android:textColor="#6B7280"/>
+                <ProgressBar android:id="@+id/pbProgress" style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent" android:layout_height="10dp"
+                    android:minHeight="10dp" android:maxHeight="10dp" android:layout_marginTop="8dp"
+                    android:progressDrawable="@drawable/progress_blue"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginTop="18dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="TASK BREAKDOWN"
+                    android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.08"
+                    android:textColor="#6B7280"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Tap card to filter tasks" android:textSize="11sp" android:textColor="#9CA3AF"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginTop="8dp">
+                <LinearLayout android:id="@+id/cardTodo"
+                    android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:layout_marginEnd="6dp" android:orientation="vertical"
+                    android:background="@drawable/bg_card" android:padding="14dp"
+                    android:clickable="true" android:focusable="true">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="To Do" android:textSize="13sp" android:textStyle="bold"
+                        android:textColor="#111827" android:drawableStart="@drawable/bg_dot"
+                        android:drawableTint="#9CA3AF" android:drawablePadding="8dp"/>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="bottom" android:layout_marginTop="8dp">
+                        <TextView android:id="@+id/tvTodoCount"
+                            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                            android:textSize="28sp" android:textStyle="bold" android:textColor="#111827"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="tasks" android:textSize="12sp" android:textColor="#9CA3AF"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout android:id="@+id/cardInProgress"
+                    android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:layout_marginStart="6dp" android:orientation="vertical"
+                    android:background="@drawable/bg_card" android:padding="14dp"
+                    android:clickable="true" android:focusable="true">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="In Progress" android:textSize="13sp" android:textStyle="bold"
+                        android:textColor="#111827" android:drawableStart="@drawable/bg_dot"
+                        android:drawableTint="#2E9BF5" android:drawablePadding="8dp"/>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="bottom" android:layout_marginTop="8dp">
+                        <TextView android:id="@+id/tvInProgressCount"
+                            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                            android:textSize="28sp" android:textStyle="bold" android:textColor="#111827"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="tasks" android:textSize="12sp" android:textColor="#9CA3AF"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginTop="12dp">
+                <LinearLayout android:id="@+id/cardDone"
+                    android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:layout_marginEnd="6dp" android:orientation="vertical"
+                    android:background="@drawable/bg_card" android:padding="14dp"
+                    android:clickable="true" android:focusable="true">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Done" android:textSize="13sp" android:textStyle="bold"
+                        android:textColor="#111827" android:drawableStart="@drawable/bg_dot"
+                        android:drawableTint="#10B981" android:drawablePadding="8dp"/>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="bottom" android:layout_marginTop="8dp">
+                        <TextView android:id="@+id/tvDoneCount"
+                            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                            android:textSize="28sp" android:textStyle="bold" android:textColor="#111827"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="completed" android:textSize="12sp" android:textColor="#9CA3AF"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout android:id="@+id/cardOverdue"
+                    android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:layout_marginStart="6dp" android:orientation="vertical"
+                    android:background="@drawable/bg_card" android:padding="14dp"
+                    android:clickable="true" android:focusable="true">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Overdue" android:textSize="13sp" android:textStyle="bold"
+                        android:textColor="#111827" android:drawableStart="@drawable/bg_dot"
+                        android:drawableTint="#EF4444" android:drawablePadding="8dp"/>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="bottom" android:layout_marginTop="8dp">
+                        <TextView android:id="@+id/tvOverdueCount"
+                            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                            android:textSize="28sp" android:textStyle="bold" android:textColor="#111827"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="attention" android:textSize="12sp" android:textStyle="italic"
+                            android:textColor="#EF4444"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" android:gravity="center"
+                android:text="* Tapping any card filters Tasks tab immediately"
+                android:textSize="11sp" android:textColor="#9CA3AF"/>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="18dp" android:text="QUICK LINKS" android:textSize="12sp"
+                android:textStyle="bold" android:letterSpacing="0.08" android:textColor="#6B7280"/>
+
+            <LinearLayout android:id="@+id/rowAttachments"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:orientation="horizontal"
+                android:gravity="center_vertical" android:background="@drawable/bg_card"
+                android:padding="14dp" android:clickable="true" android:focusable="true">
+                <ImageView android:layout_width="40dp" android:layout_height="40dp"
+                    android:background="@drawable/bg_icon_box" android:backgroundTint="#F3F4F6"
+                    android:padding="12dp" android:src="@drawable/ic_attach"
+                    android:contentDescription="Attachments"/>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Attachments" android:textStyle="bold" android:textColor="#111827"/>
+                    <TextView android:id="@+id/tvAttachmentsSub"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:maxLines="1" android:ellipsize="end" android:textSize="12sp"
+                        android:textColor="#6B7280"/>
+                </LinearLayout>
+                <ImageView android:layout_width="20dp" android:layout_height="20dp"
+                    android:src="@drawable/ic_chevron_right" android:contentDescription="Open"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/rowDiscussion"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:orientation="horizontal"
+                android:gravity="center_vertical" android:background="@drawable/bg_card"
+                android:padding="14dp" android:clickable="true" android:focusable="true">
+                <ImageView android:layout_width="40dp" android:layout_height="40dp"
+                    android:background="@drawable/bg_icon_box" android:backgroundTint="#F3F4F6"
+                    android:padding="12dp" android:src="@drawable/ic_comment"
+                    android:contentDescription="Discussion"/>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:layout_marginStart="12dp"
+                    android:text="Discussion" android:textStyle="bold" android:textColor="#111827"/>
+                <ImageView android:layout_width="20dp" android:layout_height="20dp"
+                    android:src="@drawable/ic_chevron_right" android:contentDescription="Open"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <androidx.appcompat.widget.AppCompatButton android:id="@+id/btnAddTask"
+        android:layout_width="match_parent" android:layout_height="52dp"
+        android:layout_margin="16dp" android:background="@drawable/bg_btn_primary"
+        android:text="+  Add Task" android:textAllCaps="false" android:textSize="15sp"
+        android:textStyle="bold" android:textColor="#FFFFFF"/>
+</LinearLayout>

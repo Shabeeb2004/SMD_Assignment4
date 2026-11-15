@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical" android:background="@drawable/bg_card" android:padding="16dp">
+
+    <TextView android:id="@+id/tvTag"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:background="@drawable/bg_tag" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
+        android:textColor="#7C3AED" android:textSize="11sp" android:textStyle="bold"/>
+    <TextView android:id="@+id/tvProjectName"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" android:textSize="17sp" android:textStyle="bold"
+        android:textColor="#111827"/>
+    <TextView android:id="@+id/tvProjectDesc"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="2dp" android:maxLines="2" android:ellipsize="end"
+        android:textSize="13sp" android:textColor="#6B7280"/>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="12dp">
+        <TextView android:id="@+id/tvTaskCount"
+            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:drawableStart="@drawable/ic_task_check" android:drawablePadding="6dp"
+            android:textSize="12sp" android:textColor="#374151"/>
+        <TextView android:id="@+id/tvPercent"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="12sp" android:textStyle="bold" android:textColor="#2E9BF5"/>
+    </LinearLayout>
+
+    <ProgressBar android:id="@+id/pbProject" style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent" android:layout_height="6dp"
+        android:minHeight="6dp" android:maxHeight="6dp" android:layout_marginTop="6dp"
+        android:progressDrawable="@drawable/progress_blue"/>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:layout_marginTop="12dp">
+        <TextView android:id="@+id/tvAttCount"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_attach" android:drawablePadding="6dp"
+            android:textSize="12sp" android:textColor="#6B7280"/>
+        <TextView android:id="@+id/tvCommentCount"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:drawableStart="@drawable/ic_comment" android:drawablePadding="6dp"
+            android:textSize="12sp" android:textColor="#6B7280"/>
+    </LinearLayout>
+</LinearLayout>
