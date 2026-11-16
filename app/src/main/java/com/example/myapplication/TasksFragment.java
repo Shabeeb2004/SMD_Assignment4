@@ -10,12 +10,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +28,7 @@ public class TasksFragment extends Fragment implements Refreshable {
     public static final String[] PRIORITY_OPTIONS = {"All priorities", "High", "Normal", "Low"};
     public static final String[] DATE_OPTIONS = {"All dates", "Today", "Overdue", "No due date"};
     public static final String[] SORT_OPTIONS = {"Due date ascending", "Due date descending",
-            "Priority (high to low)", "Newest first"};
+            "Priority (high to low)", "Newest first", "Custom order"};
 
     private interface Pick { void on(String value); }
 
@@ -35,13 +36,13 @@ public class TasksFragment extends Fragment implements Refreshable {
     private String query = "";
     private String status = STATUS_OPTIONS[0], priority = PRIORITY_OPTIONS[0],
             dateFilter = DATE_OPTIONS[0], sort = SORT_OPTIONS[0];
-    private final List<Task> shown = new ArrayList<>();
+    private final List<Task> shown = new ArrayList<>();   // filtered + sorted tasks, before grouping
     private TaskAdapter adapter;
     private EditText etSearch;
     private Spinner spStatus, spPriority, spDate, spSort;
     private TextView tvShowing, tvEmptyTitle;
     private Button btnEmptyAction;
-    private ListView lv;
+    private RecyclerView rv;
     private View layoutEmpty;
 
     public static TasksFragment newInstance(int projectId) {
@@ -73,15 +74,18 @@ public class TasksFragment extends Fragment implements Refreshable {
         tvShowing = v.findViewById(R.id.tvShowing);
         tvEmptyTitle = v.findViewById(R.id.tvEmptyTitle);
         btnEmptyAction = v.findViewById(R.id.btnEmptyAction);
-        lv = v.findViewById(R.id.lvTasks);
+        rv = v.findViewById(R.id.rvTasks);
         layoutEmpty = v.findViewById(R.id.layoutEmpty);
 
-        adapter = new TaskAdapter(requireContext(), shown, (t, checked) -> {
-            t.setDone(checked);
-            host.onProjectChanged();
+        adapter = new TaskAdapter(new TaskAdapter.Listener() {
+            @Override public void onToggle(Task task, boolean checked) {
+                task.setDone(checked);
+                host.onProjectChanged();
+            }
+            @Override public void onClick(Task task) { host.showTaskDialog(task); }
         });
-        lv.setAdapter(adapter);
-        lv.setOnItemClickListener((p, view, pos, id) -> host.showTaskDialog(shown.get(pos)));
+        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rv.setAdapter(adapter);
 
         etSearch.addTextChangedListener(new SimpleTextWatcher() {
             @Override public void onChanged(String text) { query = text; refresh(); }
@@ -160,6 +164,7 @@ public class TasksFragment extends Fragment implements Refreshable {
         int today = DateUtil.today();
         String q = query.toLowerCase(Locale.ROOT);
 
+        // 1. filter
         shown.clear();
         for (Task t : p.getTasks()) {
             if (!q.isEmpty() && !t.getDescription().toLowerCase(Locale.ROOT).contains(q)) continue;
@@ -171,20 +176,24 @@ public class TasksFragment extends Fragment implements Refreshable {
             shown.add(t);
         }
 
-        Collections.sort(shown, (a, b) -> {
-            int r;
-            if (sort.equals(SORT_OPTIONS[0])) r = cmpDue(a, b, true);
-            else if (sort.equals(SORT_OPTIONS[1])) r = cmpDue(a, b, false);
-            else if (sort.equals(SORT_OPTIONS[2])) r = Integer.compare(prio(a), prio(b));
-            else r = Integer.compare(b.getId(), a.getId());
-            return r != 0 ? r : Integer.compare(a.getId(), b.getId());
-        });
+        // 2. sort ("Custom order" keeps the project's own task order)
+        if (!sort.equals(SORT_OPTIONS[4])) {
+            Collections.sort(shown, (a, b) -> {
+                int r;
+                if (sort.equals(SORT_OPTIONS[0])) r = cmpDue(a, b, true);
+                else if (sort.equals(SORT_OPTIONS[1])) r = cmpDue(a, b, false);
+                else if (sort.equals(SORT_OPTIONS[2])) r = Integer.compare(prio(a), prio(b));
+                else r = Integer.compare(b.getId(), a.getId());
+                return r != 0 ? r : Integer.compare(a.getId(), b.getId());
+            });
+        }
 
-        adapter.notifyDataSetChanged();
+        // 3. group by status and submit one new list to the single adapter
+        adapter.submitList(TaskGrouper.build(shown, today));
         tvShowing.setText("Showing " + shown.size() + " of " + p.getTasks().size() + " tasks");
 
         boolean none = shown.isEmpty();
-        lv.setVisibility(none ? View.GONE : View.VISIBLE);
+        rv.setVisibility(none ? View.GONE : View.VISIBLE);
         layoutEmpty.setVisibility(none ? View.VISIBLE : View.GONE);
         if (none) {
             if (p.getTasks().isEmpty()) {
