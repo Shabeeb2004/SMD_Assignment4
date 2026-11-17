@@ -9,12 +9,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -29,7 +32,7 @@ public class FilesFragment extends Fragment implements Refreshable {
     private EditText etSearch;
     private TextView chipAll, chipImages, chipText, tvShowing, tvEmptyTitle;
     private Button btnEmptyAction;
-    private ListView lv;
+    private RecyclerView rv;
     private View layoutEmpty;
 
     public static FilesFragment newInstance(int projectId) {
@@ -60,14 +63,17 @@ public class FilesFragment extends Fragment implements Refreshable {
         tvShowing = v.findViewById(R.id.tvFilesShowing);
         tvEmptyTitle = v.findViewById(R.id.tvFilesEmptyTitle);
         btnEmptyAction = v.findViewById(R.id.btnFilesEmptyAction);
-        lv = v.findViewById(R.id.lvFiles);
+        rv = v.findViewById(R.id.rvFiles);
         layoutEmpty = v.findViewById(R.id.layoutFilesEmpty);
 
-        adapter = new AttachmentAdapter(requireContext(), shown, new AttachmentAdapter.Listener() {
-            @Override public void onPreview(AttachmentLink a) { showPreview(a); }
-            @Override public void onRemove(AttachmentLink a) { confirmRemove(a); }
+        adapter = new AttachmentAdapter(new AttachmentAdapter.Listener() {
+            @Override public void onPreview(AttachmentLink link) { showPreview(link); }
+            @Override public void onRemove(AttachmentLink link) { confirmRemove(link); }
         });
-        lv.setAdapter(adapter);
+        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rv.setAdapter(adapter);
+
+        new ItemTouchHelper(new AttachmentSwipeCallback(requireContext(), adapter, link -> confirmRemove(link))).attachToRecyclerView(rv); // SWIPE
 
         etSearch.addTextChangedListener(new SimpleTextWatcher() {
             @Override public void onChanged(String text) { query = text; refresh(); }
@@ -119,13 +125,13 @@ public class FilesFragment extends Fragment implements Refreshable {
             if (typeFilter == 2 && c.isImage()) continue;
             shown.add(a);
         }
-        adapter.notifyDataSetChanged();
+        adapter.submitList(new ArrayList<>(shown));   // a new list every time; DiffUtil updates only changed rows
         tvShowing.setText(androidx.core.text.HtmlCompat.fromHtml(
                 "Showing <b>" + shown.size() + " of " + p.getAttachments().size() + "</b> attachments",
                 androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY));
 
         boolean none = shown.isEmpty();
-        lv.setVisibility(none ? View.GONE : View.VISIBLE);
+        rv.setVisibility(none ? View.GONE : View.VISIBLE);
         layoutEmpty.setVisibility(none ? View.VISIBLE : View.GONE);
         if (none) {
             if (p.getAttachments().isEmpty()) {
@@ -148,6 +154,7 @@ public class FilesFragment extends Fragment implements Refreshable {
         });
     }
 
+    /** Preview shows the real content: an ImageView for images, a TextView for text files. */
     private void showPreview(AttachmentLink link) {
         CatalogItem item = Catalog.find(link.getCatalogId());
         View v = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_preview, null);
@@ -166,6 +173,15 @@ public class FilesFragment extends Fragment implements Refreshable {
                 .setPositiveButton("Close", null).show();
     }
 
+    private void restoreRow(int linkId) {
+        int pos = adapter.indexOfId(linkId);
+        if (pos >= 0) adapter.notifyItemChanged(pos);   // brings a swiped row back
+    }
+
+    /**
+     * The user must type the attachment name. Removed only if the name matches and Remove is pressed.
+     * Cancel, a wrong name, or tapping outside keeps the attachment and restores the row.
+     */
     private void confirmRemove(final AttachmentLink link) {
         final String name = Catalog.find(link.getCatalogId()).name;
         final EditText et = new EditText(requireContext());
@@ -176,22 +192,27 @@ public class FilesFragment extends Fragment implements Refreshable {
         box.setPadding(pad, 8, pad, 0);
         box.addView(et);
 
+        final boolean[] removed = {false};
         AlertDialog d = new AlertDialog.Builder(requireContext())
                 .setTitle("Remove attachment")
                 .setMessage("To remove this attachment, type its name exactly: " + name)
                 .setView(box)
-                .setPositiveButton("Remove", (dd, w) -> {
-                    host.getProject().removeAttachmentById(link.getId());
-                    host.onProjectChanged();
-                })
+                .setPositiveButton("Remove", null)
                 .setNegativeButton("Cancel", null)
                 .create();
+        d.setOnDismissListener(x -> { if (!removed[0]) restoreRow(link.getId()); });
         d.show();
-        d.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-        et.addTextChangedListener(new SimpleTextWatcher() {
-            @Override public void onChanged(String text) {
-                d.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(text.trim().equals(name));
+
+        d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(x -> {
+            if (et.getText().toString().trim().equals(name)) {
+                removed[0] = true;
+                host.getProject().removeAttachmentById(link.getId());
+                host.onProjectChanged();
+            } else {
+                Toast.makeText(requireContext(), "Name does not match. Attachment was not removed.",
+                        Toast.LENGTH_SHORT).show();
             }
+            d.dismiss();
         });
     }
 }

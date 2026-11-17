@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="wrap_content"
     android:orientation="horizontal" android:gravity="center_vertical"
-    android:background="@drawable/bg_card" android:padding="12dp">
+    android:background="@drawable/bg_card" android:padding="12dp"
+    android:layout_marginBottom="8dp">
 
     <ImageView android:id="@+id/ivThumb"
         android:layout_width="44dp" android:layout_height="44dp"
