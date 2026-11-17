@@ -9,36 +9,68 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
+import java.util.List;
 
-/** One adapter, two view types: section headers and task rows. */
-public class TaskAdapter extends ListAdapter<TaskListItem, RecyclerView.ViewHolder> {
+/** One adapter, two view types (header row and task row), chosen in getItemViewType. */
+public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public interface Listener {
         void onToggle(Task task, boolean checked);
         void onClick(Task task);
     }
 
+    private final List<TaskListItem> items = new ArrayList<>();
     private final Listener listener;
 
-    public TaskAdapter(Listener listener) {
-        super(DIFF);
-        this.listener = listener;
+    public TaskAdapter(Listener listener) { this.listener = listener; }
+
+    /** Replaces the list. DiffUtil works out the minimal changes; notifyDataSetChanged is never used. */
+    public void submit(List<TaskListItem> newItems) {
+        final List<TaskListItem> oldList = new ArrayList<>(items);
+        final List<TaskListItem> newList = new ArrayList<>(newItems);
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override public int getOldListSize() { return oldList.size(); }
+            @Override public int getNewListSize() { return newList.size(); }
+            @Override public boolean areItemsTheSame(int o, int n) {
+                return oldList.get(o).sameItemAs(newList.get(n));
+            }
+            @Override public boolean areContentsTheSame(int o, int n) {
+                return oldList.get(o).sameContentAs(newList.get(n));
+            }
+        });
+        items.clear();
+        items.addAll(newList);
+        result.dispatchUpdatesTo(this);
     }
 
-    private static final DiffUtil.ItemCallback<TaskListItem> DIFF = new DiffUtil.ItemCallback<TaskListItem>() {
-        @Override public boolean areItemsTheSame(@NonNull TaskListItem a, @NonNull TaskListItem b) {
-            return a.sameItemAs(b);
-        }
-        @Override public boolean areContentsTheSame(@NonNull TaskListItem a, @NonNull TaskListItem b) {
-            return a.sameContentAs(b);
-        }
-    };
+    public TaskListItem getItem(int position) { return items.get(position); }
 
-    @Override
-    public int getItemViewType(int position) {
-        return getItem(position).type;
+    @Override public int getItemCount() { return items.size(); }
+
+    @Override public int getItemViewType(int position) { return items.get(position).type; }
+
+    /** Used while dragging: moves one row and notifies the RecyclerView. */
+    public void moveItem(int from, int to) {
+        TaskListItem moved = items.remove(from);
+        items.add(to, moved);
+        notifyItemMoved(from, to);
+    }
+
+    public int indexOfTask(int taskId) {
+        for (int i = 0; i < items.size(); i++) {
+            TaskListItem it = items.get(i);
+            if (!it.isHeader() && it.taskId == taskId) return i;
+        }
+        return -1;
+    }
+
+    /** Task rows only, in the order they are currently displayed (all groups, top to bottom). */
+    public List<Task> tasksInDisplayOrder() {
+        List<Task> out = new ArrayList<>();
+        for (TaskListItem it : items) if (!it.isHeader()) out.add(it.task);
+        return out;
     }
 
     @NonNull
@@ -52,7 +84,7 @@ public class TaskAdapter extends ListAdapter<TaskListItem, RecyclerView.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        TaskListItem item = getItem(position);
+        TaskListItem item = items.get(position);
         if (holder instanceof HeaderVH) ((HeaderVH) holder).bind(item);
         else ((TaskVH) holder).bind(item);
     }

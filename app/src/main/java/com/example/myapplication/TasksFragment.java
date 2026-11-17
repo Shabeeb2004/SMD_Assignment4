@@ -12,9 +12,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
@@ -87,6 +90,14 @@ public class TasksFragment extends Fragment implements Refreshable {
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv.setAdapter(adapter);
 
+        // >>> GESTURES START
+        new ItemTouchHelper(new TaskTouchCallback(requireContext(), adapter, new TaskTouchCallback.Actions() {
+            @Override public void onSwipeComplete(Task task) { completeTask(task); }
+            @Override public void onSwipeDelete(Task task) { confirmDelete(task); }
+            @Override public void onOrderChanged(List<Task> displayOrder) { saveCustomOrder(displayOrder); }
+        })).attachToRecyclerView(rv);
+        // <<< GESTURES END
+
         etSearch.addTextChangedListener(new SimpleTextWatcher() {
             @Override public void onChanged(String text) { query = text; refresh(); }
         });
@@ -104,6 +115,53 @@ public class TasksFragment extends Fragment implements Refreshable {
 
         refresh();
     }
+
+    // ---------- swipe / drag actions ----------
+
+    /** Swipe left: mark Done. The row moves to the Done group and the header counts update. */
+    private void completeTask(Task task) {
+        if (task.isDone()) {
+            Toast.makeText(requireContext(), "Task already completed", Toast.LENGTH_SHORT).show();
+            restoreRow(task.getId());   // no duplicate is created; the row snaps back
+            return;
+        }
+        task.setDone(true);
+        host.onProjectChanged();
+    }
+
+    /** Swipe right: ask first. Cancel (or tapping outside) puts the row back. */
+    private void confirmDelete(final Task task) {
+        final boolean[] deleted = {false};
+        String preview = task.getDescription();
+        if (preview.length() > 60) preview = preview.substring(0, 60) + "...";
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Delete task?")
+                .setMessage("\"" + preview + "\" will be removed from this project.")
+                .setPositiveButton("Delete", (d, w) -> {
+                    deleted[0] = true;
+                    host.getProject().removeTaskById(task.getId());
+                    host.onProjectChanged();   // refreshes this list and every affected count
+                })
+                .setNegativeButton("Cancel", null)
+                .setOnDismissListener(d -> { if (!deleted[0]) restoreRow(task.getId()); })
+                .show();
+    }
+
+    /** After a drag: store the new order in the project and keep it by switching to Custom order. */
+    private void saveCustomOrder(List<Task> displayOrder) {
+        TaskOrderer.applyDisplayOrder(host.getProject().getTasks(), displayOrder);
+        if (!sort.equals(SORT_OPTIONS[4])) {
+            sort = SORT_OPTIONS[4];
+            spSort.setSelection(4);
+        }
+    }
+
+    private void restoreRow(int taskId) {
+        int pos = adapter.indexOfTask(taskId);
+        if (pos >= 0) adapter.notifyItemChanged(pos);   // rebinds the row and clears the swipe state
+    }
+
+    // ---------- filters ----------
 
     private void bindSpinner(Spinner sp, final String[] options, String current,
                              final String prefix, final boolean shortFirst, final Pick pick) {
@@ -176,7 +234,7 @@ public class TasksFragment extends Fragment implements Refreshable {
             shown.add(t);
         }
 
-        // 2. sort ("Custom order" keeps the project's own task order)
+        // 2. sort ("Custom order" keeps the project's own task order, which a drag rewrites)
         if (!sort.equals(SORT_OPTIONS[4])) {
             Collections.sort(shown, (a, b) -> {
                 int r;
@@ -188,8 +246,8 @@ public class TasksFragment extends Fragment implements Refreshable {
             });
         }
 
-        // 3. group by status and submit one new list to the single adapter
-        adapter.submitList(TaskGrouper.build(shown, today));
+        // 3. group by status (Overdue, In progress, To do, Done) and submit to the single adapter
+        adapter.submit(TaskGrouper.build(shown, today));
         tvShowing.setText("Showing " + shown.size() + " of " + p.getTasks().size() + " tasks");
 
         boolean none = shown.isEmpty();
